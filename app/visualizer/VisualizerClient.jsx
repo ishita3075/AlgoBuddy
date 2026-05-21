@@ -623,6 +623,26 @@ export default function VisualizerClient({ initialSections }) {
               Pick any data structure, tap an algorithm, and watch it run step
               by step. Learning DSA has never been this fun.
             </p>
+
+            {/* Search Bar */}
+            <div className="relative max-w-[480px] mx-auto mt-8">
+              <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#9ca3af]" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search algorithms and topics..."
+                className="w-full h-[52px] pl-12 pr-4 rounded-2xl border border-[#e5e7eb] dark:border-[#333] bg-white dark:bg-[#1a1a1a] text-[#1a1a1a] dark:text-white placeholder-[#9ca3af] text-[15px] shadow-sm focus:outline-none focus:border-[#a435f0] focus:ring-2 focus:ring-[#a435f0]/20 transition-all"
+              />
+              {search && (
+                <button
+                  onClick={() => setSearch("")}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9ca3af] hover:text-[#1a1a1a] dark:hover:text-white transition-colors"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
           </div>
 
           <AnimatePresence mode="wait">
@@ -688,47 +708,47 @@ export default function VisualizerClient({ initialSections }) {
                 )}
               </motion.div>
             ) : /* ─── MODULE DRILL-DOWN ─── */
-            activeSection ? (
-              <ModuleView
-                key={`module-${activeSection.title}`}
-                section={activeSection}
-                theme={getTheme(activeSection.title)}
-                onBack={() => setActiveSection(null)}
-              />
-            ) : (
-              /* ─── MAIN GRID ─── */
-              <motion.div
-                key="grid"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {filtered.map((section, i) => (
-                    <DSCard
-                      key={section.title}
-                      section={section}
-                      theme={getTheme(section.title)}
-                      onClick={() => setActiveSection(section)}
-                      delay={i * 0.07}
-                    />
-                  ))}
-                </div>
-
-                {filtered.length === 0 && (
-                  <div className="text-center py-16">
-                    <span className="text-[48px] block mb-4">🔍</span>
-                    <h3 className="text-2xl font-bold text-[#1a1a1a] mb-2">
-                      No topics found
-                    </h3>
-                    <p className="text-[#6b7280]">
-                      Try a different search term
-                    </p>
+              activeSection ? (
+                <ModuleView
+                  key={`module-${activeSection.title}`}
+                  section={activeSection}
+                  theme={getTheme(activeSection.title)}
+                  onBack={() => setActiveSection(null)}
+                />
+              ) : (
+                /* ─── MAIN GRID ─── */
+                <motion.div
+                  key="grid"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {filtered.map((section, i) => (
+                      <DSCard
+                        key={section.title}
+                        section={section}
+                        theme={getTheme(section.title)}
+                        onClick={() => setActiveSection(section)}
+                        delay={i * 0.07}
+                      />
+                    ))}
                   </div>
-                )}
-              </motion.div>
-            )}
+
+                  {filtered.length === 0 && (
+                    <div className="text-center py-16">
+                      <span className="text-[48px] block mb-4">🔍</span>
+                      <h3 className="text-2xl font-bold text-[#1a1a1a] mb-2">
+                        No topics found
+                      </h3>
+                      <p className="text-[#6b7280]">
+                        Try a different search term
+                      </p>
+                    </div>
+                  )}
+                </motion.div>
+              )}
           </AnimatePresence>
         </div>
       </section>
