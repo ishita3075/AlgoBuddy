@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiArrowLeft, FiSearch, FiChevronRight } from "react-icons/fi";
@@ -375,6 +375,7 @@ function ModuleView({ section, theme, onBack }) {
                 <Link
                   key={ii}
                   href={item.path}
+                  onClick={() => sessionStorage.setItem("visualizerNavigatedToModule", "true")}
                   className="group/item flex items-center justify-between p-4 rounded-xl border
                     bg-white dark:bg-[#2d2f31] dark:border-[#4b5563] hover:shadow-md transition-all duration-200"
                   style={{ borderColor: theme.border }}
@@ -411,6 +412,98 @@ function ModuleView({ section, theme, onBack }) {
 export default function VisualizerClient({ initialSections }) {
   const [activeSection, setActiveSection] = useState(null);
   const [search, setSearch] = useState("");
+
+  // Restore activeSection and scroll position on mount (only if returning from a module page)
+  useEffect(() => {
+    const navigatedToModule = sessionStorage.getItem("visualizerNavigatedToModule");
+    if (navigatedToModule === "true") {
+      // 1. Restore active section
+      const savedSectionTitle = sessionStorage.getItem("visualizerActiveSection");
+      if (savedSectionTitle) {
+        const section = initialSections.find((s) => s.title === savedSectionTitle);
+        if (section) {
+          setActiveSection(section);
+
+          // Restore module scroll position
+          const savedModulePos = sessionStorage.getItem("visualizerScrollPosition");
+          if (savedModulePos) {
+            const scrollPos = parseInt(savedModulePos, 10);
+            if (!isNaN(scrollPos) && scrollPos > 0) {
+              setTimeout(() => {
+                window.scrollTo({
+                  top: scrollPos,
+                  behavior: "instant",
+                });
+              }, 100);
+            }
+          }
+          sessionStorage.removeItem("visualizerNavigatedToModule");
+          return;
+        }
+      }
+
+      // 2. Restore grid scroll position if we are on the grid view
+      const savedGridPos = sessionStorage.getItem("visualizerScrollPosition");
+      if (savedGridPos) {
+        const scrollPos = parseInt(savedGridPos, 10);
+        if (!isNaN(scrollPos) && scrollPos > 0) {
+          setTimeout(() => {
+            window.scrollTo({
+              top: scrollPos,
+              behavior: "instant",
+            });
+          }, 100);
+        }
+      }
+      sessionStorage.removeItem("visualizerNavigatedToModule");
+    } else {
+      // Clear visualizer session cache if visiting the catalog fresh (e.g. from navbar)
+      sessionStorage.removeItem("visualizerActiveSection");
+      sessionStorage.removeItem("visualizerScrollPosition");
+      sessionStorage.removeItem("visualizerGridScrollPosition");
+    }
+  }, [initialSections]);
+
+  // Track window scroll position in sessionStorage
+  useEffect(() => {
+    const handleScroll = () => {
+      sessionStorage.setItem("visualizerScrollPosition", window.scrollY.toString());
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const handleCardClick = (section) => {
+    // Save grid scroll position before entering the module view
+    sessionStorage.setItem("visualizerGridScrollPosition", window.scrollY.toString());
+    sessionStorage.setItem("visualizerActiveSection", section.title);
+    // Reset module scroll position to top
+    sessionStorage.setItem("visualizerScrollPosition", "0");
+    
+    setActiveSection(section);
+    window.scrollTo(0, 0);
+  };
+
+  const handleBackToGrid = () => {
+    sessionStorage.removeItem("visualizerActiveSection");
+    sessionStorage.removeItem("visualizerScrollPosition");
+    
+    setActiveSection(null);
+
+    // Restore grid scroll position after transition stabilizes
+    const savedGridPos = sessionStorage.getItem("visualizerGridScrollPosition");
+    if (savedGridPos) {
+      const scrollPos = parseInt(savedGridPos, 10);
+      if (!isNaN(scrollPos)) {
+        setTimeout(() => {
+          window.scrollTo({
+            top: scrollPos,
+            behavior: "instant",
+          });
+        }, 100);
+      }
+    }
+  };
 
   const filtered = useMemo(() => {
     if (!search.trim()) return initialSections;
@@ -541,6 +634,7 @@ export default function VisualizerClient({ initialSections }) {
                           <Link
                             key={i}
                             href={item.path}
+                            onClick={() => sessionStorage.setItem("visualizerNavigatedToModule", "true")}
                             className="group/r flex items-center gap-3 p-4 rounded-xl bg-white dark:bg-[#2d2f31] border dark:border-[#4b5563] hover:shadow-md transition-all duration-200"
                             style={{ borderColor: t.border }}
                           >
@@ -584,7 +678,7 @@ export default function VisualizerClient({ initialSections }) {
                 key={`module-${activeSection.title}`}
                 section={activeSection}
                 theme={getTheme(activeSection.title)}
-                onBack={() => setActiveSection(null)}
+                onBack={handleBackToGrid}
               />
             ) : (
               <motion.div
@@ -600,7 +694,7 @@ export default function VisualizerClient({ initialSections }) {
                       key={section.title}
                       section={section}
                       theme={getTheme(section.title)}
-                      onClick={() => setActiveSection(section)}
+                      onClick={() => handleCardClick(section)}
                       delay={i * 0.07}
                     />
                   ))}
