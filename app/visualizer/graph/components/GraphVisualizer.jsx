@@ -342,13 +342,28 @@ export default function GraphVisualizer({ algorithm = "bfs", startNode: initialS
         <GraphCanvas
           nodes={nodes}
           edges={edges}
-          onUpdateNodes={setNodes}
-          onUpdateEdges={setEdges}
-          animationState={!isEditing ? currentFrameData : {}}
-          interactive={isEditing}
+          visitedSet={!isEditing ? currentFrameData.visitedNodes : undefined}
+          currentNode={!isEditing ? currentFrameData.currentNode : undefined}
+          onAddNode={(node) => setNodes(prev => {
+            const maxId = prev.reduce((max, n) => Math.max(max, parseInt(n.id) || 0), -1);
+            return [...prev, { ...node, id: String(maxId + 1) }];
+          })}
+          onAddEdge={(edge) => setEdges(prev => [...prev, {
+            from: edge.from,
+            to: edge.to,
+            weight: 1,
+            directed: algorithm === "dijkstra" || algorithm === "topological-sort",
+          }])}
+          onRemoveNode={(id) => {
+            setNodes(prev => prev.filter(n => n.id !== id));
+            setEdges(prev => prev.filter(e => e.from !== id && e.to !== id));
+          }}
+          onRemoveEdge={(idx) => setEdges(prev => prev.filter((_, i) => i !== idx))}
+          onReverseEdge={(idx) => setEdges(prev => prev.map((e, i) =>
+            i === idx ? { ...e, from: e.to, to: e.from } : e
+          ))}
           isWeighted={algorithm === "dijkstra" || algorithm === "prim" || algorithm === "kruskal"}
           isDirected={algorithm === "dijkstra" || algorithm === "topological-sort"}
-          className="w-full"
         />
 
         {/* Controls Bar */}

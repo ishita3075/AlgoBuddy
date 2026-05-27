@@ -37,6 +37,7 @@ export default function GraphCanvas({
   nodes,
   edges,
   isDirected,
+  isWeighted,
   visitedSet,
   currentNode,
   onAddNode,
@@ -162,27 +163,41 @@ export default function GraphCanvas({
 
         const isActive = currentNode === edge.from || currentNode === edge.to;
         const edgeColor = isActive ? "#f97316" : "#6b7280";
-        const markerEnd = isDirected
+        const markerEnd = edge.directed
           ? isActive ? "url(#arrowhead-active)" : "url(#arrowhead)"
           : undefined;
 
-        const { x: ex, y: ey } = isDirected
+        const { x: ex, y: ey } = edge.directed
           ? edgeEndpoint(src.x, src.y, tgt.x, tgt.y, NODE_RADIUS)
           : { x: tgt.x, y: tgt.y };
 
         return (
-          <line
-            key={idx}
-            x1={src.x}
-            y1={src.y}
-            x2={ex}
-            y2={ey}
-            stroke={edgeColor}
-            strokeWidth={isActive ? 2 : 1.5}
-            markerEnd={markerEnd}
-            style={{ cursor: "pointer" }}
-            onContextMenu={(e) => handleEdgeRightClick(e, idx)}
-          />
+          <g key={idx}>
+            <line
+              x1={src.x}
+              y1={src.y}
+              x2={ex}
+              y2={ey}
+              stroke={edgeColor}
+              strokeWidth={isActive ? 2 : 1.5}
+              markerEnd={markerEnd}
+              style={{ cursor: "pointer" }}
+              onContextMenu={(e) => handleEdgeRightClick(e, idx)}
+            />
+            {isWeighted && (
+              <text
+                x={(src.x + tgt.x) / 2}
+                y={(src.y + tgt.y) / 2 - 8}
+                textAnchor="middle"
+                fill="#6b7280"
+                fontSize={12}
+                fontWeight={600}
+                fontFamily="monospace"
+              >
+                {edge.weight}
+              </text>
+            )}
+          </g>
         );
       })}
 
