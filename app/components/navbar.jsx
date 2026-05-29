@@ -149,7 +149,7 @@ export default function Navbar() {
         <div className="w-full max-w-[1200px] mx-auto px-8 flex items-center justify-between h-full">
           <Link
             href="/"
-            className="text-[26px] font-black text-surface-900 dark:text-white tracking-tighter hover:opacity-75 transition-opacity focus-ring"
+            className="brand-logo text-[26px] text-surface-900 dark:text-white hover:opacity-75 transition-opacity focus-ring"
           >
             Algo
             <span className="text-primary">
