@@ -29,7 +29,7 @@ export const metadata = {
   publisher: "AlgoBuddy",
   robots: "index, follow",
   icons: {
-    icon: "/favicon.svg?v=3",
+    icon: "/icon.svg",
   },
   openGraph: {
     title: "AlgoBuddy | Visualize & Learn DSA the Smart Way",
@@ -83,6 +83,13 @@ export default async function RootLayout({ children }) {
             `,
           }}
         />
+        {/* Google AdSense Script */}
+<Script
+  async
+  src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5588131730389378"
+  crossOrigin="anonymous"
+  strategy="afterInteractive"
+/>
 
         {/* Google Analytics Script */}
         {GA_ID && (

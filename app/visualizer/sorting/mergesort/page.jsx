@@ -21,6 +21,7 @@ export const metadata = {
 
 export default function Page() {
   return (
+<<<<<<< HEAD
     <>
       <TrackVisit name="Merge Sort" path="/visualizer/sorting/mergesort" category="Sorting" />
       <VisualizerPageLayout
@@ -47,5 +48,43 @@ export default function Page() {
         }
       />
     </>
+=======
+    <VisualizerPageLayout
+      paths={createVisualizerPaths("Sorting", "Merge Sort")}
+      title="Merge Sort"
+      animation={<Animation />}
+      content={<Content />}
+      code={<Code />}
+      quiz={<Quiz />}
+      moduleCard={
+        <ModuleCard
+          moduleId={MODULE_MAPS.mergeSort}
+          description="Mark Merge Sort as done and view it on your dashboard"
+          initialDone={false}
+        />
+      }
+      exploreOther={
+        <ExploreOther
+          title="Explore Sorting Algorithms"
+          links={[
+            {
+              text: "Selection Sort",
+              url: "/visualizer/sorting/selectionsort",
+            },
+            { text: "Bubble Sort", url: "/visualizer/sorting/bubblesort" },
+            {
+              text: "Insertion Sort",
+              url: "/visualizer/sorting/insertionsort",
+            },
+            { text: "Merge Sort", url: "/visualizer/sorting/mergesort" },
+            { text: "Quick Sort", url: "/visualizer/sorting/quicksort" },
+            { text: "Comparison Mode", url: "/visualizer/sorting/comparison" },
+            { text: "Counting Sort", url: "/visualizer/sorting/countingsort" },
+            { text: "Heap Sort", url: "/visualizer/sorting/heapsort" },
+          ]}
+        />
+      }
+    />
+>>>>>>> upstream/main
   );
 }
