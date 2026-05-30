@@ -699,7 +699,7 @@ const Visualizer = () => {
     >
       <TutorialOverlay />
       <VisualizerClient initialSections={clientSections} />
-      <div className="w-full relative z-10">
+      <div className="w-full relative">
         
         <BackToTop />
         <Footer />
