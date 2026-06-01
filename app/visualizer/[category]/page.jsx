@@ -38,7 +38,7 @@ export default async function CategoryPage({ params }) {
       style={{ fontFamily: "'Inter', 'Source Sans 3', sans-serif" }}
     >
 
-      <main className="flex-1 max-w-[1100px] w-full mx-auto px-5 pt-24 pb-20">
+      <main className="flex-1 max-w-[1100px] w-full mx-auto px-5 pt-10 pb-20">
         <CategoryClient section={section} />
       </main>
 
