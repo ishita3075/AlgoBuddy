@@ -1,7 +1,7 @@
-import Animation from "@/app/visualizer/linkedList/operations/reverse/animation";
-import Content from "@/app/visualizer/linkedList/operations/reverse/content";
-import Quiz from "@/app/visualizer/linkedList/operations/reverse/quiz";
-import CodeBlock from "@/app/visualizer/linkedList/operations/reverse/codeBlock";
+import Animation from "@/app/visualizer/linkedlist/operations/reverse/animation";
+import Content from "@/app/visualizer/linkedlist/operations/reverse/content";
+import Quiz from "@/app/visualizer/linkedlist/operations/reverse/quiz";
+import CodeBlock from "@/app/visualizer/linkedlist/operations/reverse/codeBlock";
 import ExploreOther from "@/app/components/ui/exploreOther";
 import VisualizerPageLayout, {
   createVisualizerPaths,

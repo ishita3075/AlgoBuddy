@@ -6,7 +6,7 @@ import {
   VisualizerCard,
   VisualizerInteractiveLayout,
 } from "@/app/visualizer/components/VisualizerInteractiveLayout";
-import { createLinkedListTempNode } from "@/app/visualizer/linkedList/utils/createTempNode";
+import { createLinkedListTempNode } from "@/app/visualizer/linkedlist/utils/createTempNode";
 import useVisualizerReset from "@/app/hooks/useVisualizerReset";
 
 const LinkedListVisualizer = () => {

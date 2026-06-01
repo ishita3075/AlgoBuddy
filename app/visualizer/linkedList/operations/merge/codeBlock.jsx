@@ -1,7 +1,7 @@
 'use client';
 
 import CodeBlock from '@/app/components/ui/CodeBlock';
-import CodeExamples from '@/app/visualizer/linkedList/operations/merge/data/codeExamples.json';
+import CodeExamples from '@/app/visualizer/linkedlist/operations/merge/data/codeExamples.json';
 
 // ─── Code Examples ─────────────────────────────
 const codeExamples = CodeExamples;

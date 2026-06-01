@@ -1,7 +1,7 @@
-import Animation from "@/app/visualizer/linkedList/operations/merge/animation";
-import Content from "@/app/visualizer/linkedList/operations/merge/content";
-import Quiz from "@/app/visualizer/linkedList/operations/merge/quiz";
-import CodeBlock from "@/app/visualizer/linkedList/operations/merge/codeBlock";
+import Animation from "@/app/visualizer/linkedlist/operations/merge/animation";
+import Content from "@/app/visualizer/linkedlist/operations/merge/content";
+import Quiz from "@/app/visualizer/linkedlist/operations/merge/quiz";
+import CodeBlock from "@/app/visualizer/linkedlist/operations/merge/codeBlock";
 import ExploreOther from "@/app/components/ui/exploreOther";
 import VisualizerPageLayout, {
   createVisualizerPaths,
