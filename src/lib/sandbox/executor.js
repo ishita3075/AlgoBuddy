@@ -1,93 +1,95 @@
-const vm = require("vm");
+const ivm = require("isolated-vm");
 const { EXECUTION_STATUS } = require("./errorCodes");
 const { MAX_TIMEOUT_MS, MAX_MEMORY_MB, MAX_OUTPUT_LENGTH } = require("./sandbox.config");
-
-const MEMORY_LIMIT_BYTES = MAX_MEMORY_MB * 1024 * 1024;
 
 async function executeCode(code) {
   const startTime = Date.now();
   const outputLines = [];
 
-  const memoryBefore = process.memoryUsage().heapUsed;
-  if (memoryBefore > MEMORY_LIMIT_BYTES) {
-    return {
-      status: EXECUTION_STATUS.MLE,
-      output: "",
-      error: `Server memory exceeded before execution. Try again later.`,
-      executionTime: 0,
-      memoryUsed: memoryBefore,
-    };
-  }
-
+  let isolate;
   try {
-    const sandbox = {
-      console: {
-        log:   (...a) => outputLines.push(a.map(String).join(" ")),
-        warn:  (...a) => outputLines.push("[warn] " + a.map(String).join(" ")),
-        error: (...a) => outputLines.push("[error] " + a.map(String).join(" ")),
-        info:  (...a) => outputLines.push("[info] " + a.map(String).join(" ")),
-      },
+    // Create a new Isolate with the strict memory limit
+    isolate = new ivm.Isolate({ memoryLimit: MAX_MEMORY_MB });
+    
+    // Create a new execution context
+    const context = isolate.createContextSync();
+    const jail = context.global;
+
+    jail.setSync("global", jail.derefInto());
+
+    const logCallback = function (...args) {
+      outputLines.push(args.join(" "));
     };
+    jail.setSync("_hostLog", new ivm.Reference(logCallback));
 
-    const context = vm.createContext(sandbox);
+    isolate.compileScriptSync(`
+      function safeStringify(obj) {
+        if (typeof obj === 'string') return obj;
+        try { return JSON.stringify(obj); } catch (e) { return String(obj); }
+      }
+      global.console = {
+        log: function(...args) {
+          _hostLog.applySync(undefined, args.map(safeStringify));
+        },
+        error: function(...args) {
+          _hostLog.applySync(undefined, args.map(a => "[error] " + safeStringify(a)));
+        },
+        warn: function(...args) {
+          _hostLog.applySync(undefined, args.map(a => "[warn] " + safeStringify(a)));
+        },
+        info: function(...args) {
+          _hostLog.applySync(undefined, args.map(a => "[info] " + safeStringify(a)));
+        }
+      };
+    `).runSync(context);
 
-    const script = new vm.Script(code, { filename: "user-code.js" });
-
-    script.runInContext(context, { timeout: MAX_TIMEOUT_MS });
+    // Compile and run the user script safely
+    const script = isolate.compileScriptSync(code, { filename: "user-code.js" });
+    
+    // Pass execution timeout to prevent infinite loops
+    script.runSync(context, { timeout: MAX_TIMEOUT_MS });
 
     const rawOutput = outputLines.join("\n");
     const output = rawOutput.length > MAX_OUTPUT_LENGTH
       ? rawOutput.slice(0, MAX_OUTPUT_LENGTH) + "\n… (output truncated)"
       : rawOutput;
 
-    const memoryUsed = process.memoryUsage().heapUsed - memoryBefore;
-
-    if (memoryUsed > MEMORY_LIMIT_BYTES) {
-      return {
-        status: EXECUTION_STATUS.MLE,
-        output: output,
-        error: `Your code used ${Math.round(memoryUsed / 1024 / 1024)} MB of memory, exceeding the ${MAX_MEMORY_MB} MB limit.`,
-        executionTime: Date.now() - startTime,
-        memoryUsed,
-      };
-    }
+    // Clean up references
+    context.release();
 
     return {
       status: EXECUTION_STATUS.SUCCESS,
       output,
       executionTime: Date.now() - startTime,
-      memoryUsed,
+      memoryUsed: 0, // In isolated-vm, memory per script is managed strictly by the isolate bound
     };
 
   } catch (err) {
     const elapsed = Date.now() - startTime;
-
-    if (err.code === "ERR_SCRIPT_EXECUTION_TIMEOUT" || err.message?.includes("timed out")) {
+    
+    // Handle Time Limit Exceeded
+    if (err.message && err.message.includes("timed out")) {
       return {
         status: EXECUTION_STATUS.TLE,
-        output: "",
+        output: outputLines.join("\n"),
         error: `Your code exceeded the ${MAX_TIMEOUT_MS}ms time limit.`,
         executionTime: elapsed,
         memoryUsed: 0,
       };
     }
 
-    const memoryErr = (err.message && (
-      err.message.includes("memory") ||
-      err.message.includes("allocation") ||
-      err.message.includes("heap")
-    )) || err.code === "ERR_MEMORY_ALLOCATION_FAILED";
-
-    if (memoryErr) {
+    // Handle Memory Limit Exceeded
+    if (err.message && (err.message.includes("memory limit") || err.message.includes("allocation"))) {
       return {
         status: EXECUTION_STATUS.MLE,
         output: outputLines.join("\n"),
         error: `Your code used too much memory (exceeded ${MAX_MEMORY_MB} MB).`,
         executionTime: elapsed,
-        memoryUsed: process.memoryUsage().heapUsed - memoryBefore,
+        memoryUsed: MAX_MEMORY_MB * 1024 * 1024,
       };
     }
 
+    // Handle generic syntax/runtime errors inside user code
     return {
       status: EXECUTION_STATUS.RUNTIME_ERROR,
       output: outputLines.join("\n"),
@@ -95,6 +97,11 @@ async function executeCode(code) {
       executionTime: elapsed,
       memoryUsed: 0,
     };
+  } finally {
+    // Ensure the isolate is destroyed so memory is freed
+    if (isolate) {
+      isolate.dispose();
+    }
   }
 }
 
