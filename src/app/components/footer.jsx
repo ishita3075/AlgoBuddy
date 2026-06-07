@@ -111,6 +111,16 @@ const Footer = () => {
                 >
                   <FaInstagram className="w-4 h-4" />
                 </a>
+
+                <a
+                  href="https://discord.gg/PqnazRxPc"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={socialIcon}
+                  aria-label="Join AlgoBuddy Discord Community"
+                >
+                  <FaDiscord className="w-4 h-4" />
+                </a>
               </div>
 
               {/* Newsletter */}
