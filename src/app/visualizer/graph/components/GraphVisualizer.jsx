@@ -20,6 +20,7 @@ import GraphCanvas from "@/app/components/models/GraphCanvas";
 import AdjacencyPanel from "@/app/components/models/AdjacencyPanel";
 import PlaybackControls from "@/app/components/ui/PlaybackControls";
 import useVisualizerKeyboard from "@/app/hooks/useVisualizerKeyboard";
+import { CustomInputPanel } from "@/app/visualizer/components/CustomInputPanel";
 import { 
   bfsFrames, 
   dfsFrames, 
@@ -265,6 +266,44 @@ export default function GraphVisualizer({ algorithm = "bfs", startNode: initialS
   const handleAddEdge = useCallback((edge) => {
     setEdges((prev) => [...prev, { ...edge, weight: 1, directed: isDirected }]);
   }, [isDirected]);
+
+  const handleCustomGraphInput = useCallback((parsedEdges) => {
+    if (parsedEdges === null) {
+      setNodes(defaultGraphs[algorithm]?.nodes || []);
+      setEdges(defaultGraphs[algorithm]?.edges || []);
+    } else {
+      const nodeIds = Array.from(
+        new Set(parsedEdges.flatMap(e => [e.source, e.target]))
+      ).sort((a, b) => a - b);
+      
+      const centerX = 400;
+      const centerY = 250;
+      const radius = 180;
+      const numNodes = nodeIds.length;
+      
+      const newNodes = nodeIds.map((id, idx) => {
+        const angle = (idx * 2 * Math.PI) / (numNodes || 1);
+        return {
+          id: String(id),
+          x: Math.round(centerX + radius * Math.cos(angle)),
+          y: Math.round(centerY + radius * Math.sin(angle)),
+          label: !isNaN(Number(id)) ? String.fromCharCode(65 + (Number(id) % 26)) : String(id)
+        };
+      });
+
+      const newEdges = parsedEdges.map(e => ({
+        from: String(e.source),
+        to: String(e.target),
+        weight: e.weight,
+        directed: isDirected
+      }));
+
+      setNodes(newNodes);
+      setEdges(newEdges);
+    }
+    setCurrentFrame(0);
+    setIsPlaying(false);
+  }, [algorithm, isDirected]);
 
   const frames = useMemo(() => {
     const adj = {};
@@ -587,15 +626,10 @@ export default function GraphVisualizer({ algorithm = "bfs", startNode: initialS
           </div>
         </div>
 
-        {/* Adjacency Panel — now uses the shared component */}
-        <div className="rounded-2xl border border-surface-200 bg-white p-5 shadow-sm dark:border-surface-800 dark:bg-surface-900">
+      {/* Adjacency Representation & Custom Input */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2 rounded-2xl border border-surface-200 bg-white p-5 shadow-sm dark:border-surface-800 dark:bg-surface-900">
           <h3 className="mb-4 text-sm font-bold text-surface-900 dark:text-white">Adjacency Representation</h3>
-          <AdjacencyPanel
-            nodes={nodes}
-            edges={edges}
-            isDirected={isDirected}
-            isWeighted={isWeighted}
-          />
           <AdjacencyPanel
             nodes={nodes}
             edges={edges}
@@ -709,6 +743,15 @@ export default function GraphVisualizer({ algorithm = "bfs", startNode: initialS
             </div>
           </div>
         </div>
+
+        <div className="lg:col-span-1">
+          <CustomInputPanel
+            inputType="graph"
+            onApply={handleCustomGraphInput}
+            currentData={edges}
+          />
+        </div>
+      </div>
       </div>
     </div>
   );
