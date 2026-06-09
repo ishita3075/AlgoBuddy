@@ -7,6 +7,7 @@ import UpcomingTournament from "@/app/components/ui/UpcomingTournament";
 import MatchmakingModal from "@/app/components/ui/MatchmakingModal";
 import DuelSimulatorModal from "@/app/components/ui/DuelSimulatorModal";
 import CreateDuelModal from "@/app/components/ui/CreateDuelModal";
+import BackToTop from "@/app/components/ui/backtotop";
 import Footer from "@/app/components/footer";
 import {
   Home,
@@ -47,6 +48,24 @@ const LEADERBOARD_ROWS = [
   { rank: 3, name: "Aditya", rating: 2200 },
   { rank: 4, name: "Rahul", rating: 2130 },
   { rank: 5, name: "Ananya", rating: 2105 },
+];
+
+const LEARNING_RECOMMENDATIONS = [
+  {
+    topic: "Binary Search Tree",
+    reason: "Recommended after mastering Binary Search",
+    color: "purple"
+  },
+  {
+    topic: "Graph Traversal (BFS)",
+    reason: "Next logical step after Tree Traversal",
+    color: "blue"
+  },
+  {
+    topic: "Dynamic Programming Basics",
+    reason: "Suggested from your recent activity",
+    color: "green"
+  }
 ];
 
 function getInitials(name) {
@@ -586,6 +605,20 @@ export default function ArenaPage() {
                 <span>Longest Streak</span>
                 <span className="font-bold text-slate-800 dark:text-neutral-200">43 Days</span>
               </div>
+              <div className="mt-4 p-3 rounded-xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800">
+  <div className="flex items-center justify-between">
+    <span className="text-xs font-semibold text-slate-700 dark:text-neutral-200">
+      📊 Consistency Score
+    </span>
+    <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+      85%
+    </span>
+  </div>
+
+  <p className="text-[10px] text-slate-500 dark:text-neutral-400 mt-1">
+    Active on 26 of the last 30 days.
+  </p>
+</div>
             </div>
 
             {/* Detailed Stats */}
@@ -629,6 +662,88 @@ export default function ArenaPage() {
               </div>
             </div>
 
+            {/* Smart Revision Planner */}
+<div className="bg-white dark:bg-neutral-800 border border-slate-100 dark:border-neutral-800/80 rounded-2xl p-5 shadow-sm">
+  <div className="flex items-center justify-between mb-4">
+    <h3 className="text-sm font-bold text-slate-800 dark:text-neutral-200">
+      📚 Revision Planner
+    </h3>
+    <span className="text-[10px] text-slate-400">
+      Weekly Plan
+    </span>
+  </div>
+
+  <div className="space-y-3">
+    <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800">
+      <p className="text-xs font-semibold">
+        Binary Search
+      </p>
+      <p className="text-[10px] text-slate-500">
+        Last revised 14 days ago • High Priority
+      </p>
+    </div>
+
+    <div className="p-3 rounded-xl bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800">
+      <p className="text-xs font-semibold">
+        Linked List
+      </p>
+      <p className="text-[10px] text-slate-500">
+        Revision due in 2 days
+      </p>
+    </div>
+
+    <div className="p-3 rounded-xl bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800">
+      <p className="text-xs font-semibold">
+        Arrays
+      </p>
+      <p className="text-[10px] text-slate-500">
+        Recently revised
+      </p>
+    </div>
+  </div>
+</div>
+
+{/* Personalized Learning Recommendations */}
+<div className="bg-white dark:bg-neutral-800 border border-slate-100 dark:border-neutral-800/80 rounded-2xl p-5 shadow-sm">
+  <div className="flex items-center justify-between mb-4">
+    <h3 className="text-sm font-bold text-slate-800 dark:text-neutral-200">
+      🎯 Recommended For You
+    </h3>
+    <span className="text-[10px] text-slate-400">
+      Based on Progress
+    </span>
+  </div>
+
+  <div className="space-y-3">
+    <div className="p-3 rounded-xl bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800">
+      <p className="text-xs font-semibold">
+        Binary Search Tree
+      </p>
+      <p className="text-[10px] text-slate-500">
+        Recommended after mastering Binary Search
+      </p>
+    </div>
+
+    <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800">
+      <p className="text-xs font-semibold">
+        Graph Traversal (BFS)
+      </p>
+      <p className="text-[10px] text-slate-500">
+        Next logical step after Tree Traversal
+      </p>
+    </div>
+
+    <div className="p-3 rounded-xl bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800">
+      <p className="text-xs font-semibold">
+        Dynamic Programming Basics
+      </p>
+      <p className="text-[10px] text-slate-500">
+        Suggested from your recent activity
+      </p>
+    </div>
+  </div>
+</div>
+
             {/* Badges Grid */}
             <div className="bg-white dark:bg-neutral-800 border border-slate-100 dark:border-neutral-800/80 rounded-2xl p-5 shadow-sm">
               <div className="flex items-center justify-between mb-4">
@@ -664,6 +779,7 @@ export default function ArenaPage() {
       </div>
 
       <Footer />
+       <BackToTop />
 
       {/* ─── Interactive Modals ────────────────────────────────────────────── */}
       <MatchmakingModal
