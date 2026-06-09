@@ -6,11 +6,9 @@ services:
     plan: free
     envVars:
       # You will need to securely provide the values for these in the Render Dashboard:
-      - key: SPRING_DATASOURCE_URL
+      - key: DB_URL
         sync: false
-      - key: SPRING_DATASOURCE_USERNAME
+      - key: DB_USERNAME
         sync: false
-      - key: SPRING_DATASOURCE_PASSWORD
-        sync: false
-      - key: SUPABASE_JWT_SECRET
+      - key: DB_PASSWORD
         sync: false
