@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "react-hot-toast";
 import { 
   Search, 
@@ -13,7 +14,12 @@ import {
   ChevronRight,
   Moon,
   Sun,
-  X
+  X,
+  Crown,
+  BookOpen,
+  Play,
+  ExternalLink,
+  ScrollText
 } from "lucide-react";
 
 import PracticeSidebar from "@/app/components/practice/PracticeSidebar";
