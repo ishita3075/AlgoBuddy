@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { gsap } from "gsap";
 import ResetButton from "@/app/components/ui/resetButton";
 import GoButton from "@/app/components/ui/goButton";
@@ -40,10 +40,7 @@ const Animation = () => {
   const [bestResult, setBestResult] = useState(null);
   const [stepExplanation, setStepExplanation] = useState("");
 
-  const animationRef = useRef(null);
-  const wasPausedRef = useRef(false);
-  const stateQueueRef = useRef([]);
-  const currentStateIdxRef = useRef(0);
+  const visualizerRef = useRef(null);
   const elementRefs = useRef([]);
   const [steps, setSteps] = useState([]);
   const [visualState, setVisualState] = useState({
@@ -94,34 +91,17 @@ const Animation = () => {
     // Call any reset initialization logic here if needed
   }, []);
 
-  const animateStep = useCallback(() => {
-    if (currentStateIdxRef.current >= stateQueueRef.current.length) {
-      setIsAnimating(false);
-      setMessage("Visualization completed.");
-      setMessageType("success");
-      setShowQuiz(true);
-      return;
-    }
-
-    const state = stateQueueRef.current[currentStateIdxRef.current];
-    const delay = 1500 / 1; // Replace speedRef.current with actual speed value
-
-  const link = document.createElement("a");
-  link.download = "sliding-window-visualization.png";
-  link.href = canvas.toDataURL("image/png");
-  link.click();
-};
-
+  useEffect(() => {
     elementRefs.current.forEach((ref, index) => {
       if (!ref) return;
-      const [start, end] = state.activeWindow;
+      const [start, end] = visualState.activeWindow;
       
       if (index >= start && index <= end) {
-        if (state.violation && index === state.left) {
+        if (visualState.violation && index === visualState.left) {
           gsap.to(ref, { backgroundColor: "#FEE2E2", borderColor: "#EF4444", color: "#991B1B", duration: 0.2 });
-        } else if (state.success) {
+        } else if (visualState.success) {
           gsap.to(ref, { backgroundColor: "#DCFCE7", borderColor: "#22C55E", color: "#166534", duration: 0.2 });
-        } else if (state.done) {
+        } else if (visualState.done) {
           gsap.to(ref, { backgroundColor: "#F3E8FF", borderColor: "#A855F7", color: "#6B21A8", duration: 0.2 });
         } else {
           gsap.to(ref, { backgroundColor: "#F3E8FF", borderColor: "#A855F7", color: "#6B21A8", duration: 0.2 });
@@ -131,11 +111,31 @@ const Animation = () => {
       }
     });
 
-    if (state.done) {
+    if (visualState.done) {
       setMessage("Visualization completed.");
       setMessageType("success");
       setShowQuiz(true);
     }
+  }, [visualState]);
+
+  useEffect(() => {
+    const handleDownload = async () => {
+      if (!visualizerRef.current) return;
+      try {
+        const canvas = await html2canvas(visualizerRef.current, {
+          backgroundColor: document.documentElement.classList.contains("dark") ? "#1f2937" : "#ffffff",
+        });
+        const link = document.createElement("a");
+        link.download = "sliding-window-visualization.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      } catch (err) {
+        console.error("Failed to capture visualization:", err);
+      }
+    };
+    
+    window.addEventListener("download-visualization", handleDownload);
+    return () => window.removeEventListener("download-visualization", handleDownload);
   }, []);
 
   const handleGo = (e) => {
