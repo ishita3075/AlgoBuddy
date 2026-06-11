@@ -69,11 +69,14 @@ export default function PracticePage() {
     setMounted(true);
   }, []);
 
-  useEffect(() => {
-    if (mounted && !user) {
-      router.replace("/login");
+  const ensureLoggedIn = () => {
+    if (!user) {
+      toast.error("Please login to use this feature!");
+      router.push("/login");
+      return false;
     }
-  }, [user, router, mounted]);
+    return true;
+  };
 
   // Dynamically flatten all problems from practiceData (Zero Hardcoding!)
   const allProblems = useMemo(() => {
@@ -161,6 +164,7 @@ export default function PracticePage() {
 
   // Handle status circle toggle (Not Started -> In Progress -> Completed -> Not Started)
   const handleStatusToggle = async (problemId, currentStatus) => {
+    if (!ensureLoggedIn()) return;
     let nextStatus = "Not Started";
     if (currentStatus === "Not Started" || !currentStatus) {
       nextStatus = "In Progress";
@@ -268,6 +272,7 @@ export default function PracticePage() {
 
   // Solve random unsolved problem
   const handleSolveRandom = () => {
+    if (!ensureLoggedIn()) return;
     const unsolved = allProblems.filter((p) => getStatus(p.id) !== "Completed");
     if (unsolved.length === 0) {
       toast.error("Wow, you've completed all problems! 🎉");
@@ -305,6 +310,9 @@ export default function PracticePage() {
         <PracticeSidebar 
           activeView={activeView}
           onViewChange={(view) => {
+            if (["my-sheet", "bookmarks", "recent-solved"].includes(view)) {
+              if (!ensureLoggedIn()) return;
+            }
             setActiveView(view);
             setCurrentPage(1); // Reset page on view change
             setSelectedCompanyFilter("All"); // Reset company filter
@@ -465,7 +473,11 @@ export default function PracticePage() {
                               </td>
                               <td className="py-4 px-5 text-center">
                                 <button
-                                  onClick={() => { removeFromSheet(prob.id); toast.success('Removed from My Sheet'); }}
+                                  onClick={() => {
+                                    if (!ensureLoggedIn()) return;
+                                    removeFromSheet(prob.id);
+                                    toast.success('Removed from My Sheet');
+                                  }}
                                   className="text-slate-300 dark:text-neutral-700 hover:text-red-500 dark:hover:text-red-400 transition p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20"
                                   title="Remove from My Sheet"
                                 >
@@ -604,9 +616,15 @@ export default function PracticePage() {
                                   {indexNumber}
                                 </td>
                                 <td className="py-4 px-5">
-                                  <div className="font-bold text-xs text-slate-800 dark:text-white">
-                                    {prob.name}
-                                  </div>
+                                  <a
+                                    href={prob.practiceUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="font-bold text-xs text-slate-800 dark:text-white hover:text-primary dark:hover:text-purple-400 hover:underline inline-flex items-center gap-1 transition"
+                                  >
+                                    <span>{prob.name}</span>
+                                    <ExternalLink size={12} className="opacity-50 shrink-0" />
+                                  </a>
                                 </td>
                                 <td className="py-4 px-5 text-xs font-bold text-slate-500 dark:text-neutral-400">
                                   {prob.topic}
@@ -653,7 +671,10 @@ export default function PracticePage() {
                                 </td>
                                 <td className="py-4 px-5 text-center">
                                   <button
-                                    onClick={() => toggleBookmark(prob.id, prob.topic.toLowerCase())}
+                                    onClick={() => {
+                                      if (!ensureLoggedIn()) return;
+                                      toggleBookmark(prob.id, prob.topic.toLowerCase());
+                                    }}
                                     className={`focus:outline-none focus-ring rounded-lg p-1.5 transition ${
                                       isSaved 
                                         ? "text-primary bg-primary/10 dark:text-purple-400" 
@@ -666,6 +687,7 @@ export default function PracticePage() {
                                 <td className="py-4 px-5 text-center">
                                   <button
                                     onClick={() => {
+                                      if (!ensureLoggedIn()) return;
                                       if (isInSheet(prob.id)) {
                                         removeFromSheet(prob.id);
                                         toast.success('Removed from My Sheet');
